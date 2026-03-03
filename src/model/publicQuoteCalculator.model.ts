@@ -14,7 +14,8 @@ const PublicQuoteSchema = new mongoose.Schema({
         key: String,
         originalName: String,
         uploadedAt: { type: Date, default: new Date() }
-    }
+    },
+    config: {type: Object, default:{} }
 }, { timestamps: true });
 
 

@@ -2,6 +2,7 @@ import PublicQuoteCalculatorModel from '../model/publicQuoteCalculator.model.js'
 import type { Request, Response } from 'express';
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 import { uploadFileToS3New } from '../utils/s3UploadsNew.js';
+
 // import { PublicQuoteModel } from '../models/PublicQuoteModel.js';
 // import { uploadBufferToS3 } from '../utils/s3Config.js';
 
@@ -22,353 +23,12 @@ export const formatUploadData = async (file: any) => {
 
 
 
-// export const createPublicQuote = async (req: Request, res: Response) => {
-
-
-
-
-
-//     try {
-//         const { name, phone, location, carpetArea, homeType, finish, estimate } = req.body;
-
-        
-
-        
-       
-//         // 1. Create PDF via pdf-lib with better styling
-//         const pdfDoc = await PDFDocument.create();
-//         const page = pdfDoc.addPage([612, 792]); // US Letter size (8.5" x 11")
-//         const { width, height } = page.getSize();
-
-//         // Load fonts at the beginning (FIXED: load once, not multiple times)
-//         const helveticaBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
-//         const helvetica = await pdfDoc.embedFont(StandardFonts.Helvetica);
-
-//         // Colors
-//         const goldColor = rgb(0.92, 0.75, 0.15); // Rich gold #EBC21E
-//         const darkGray = rgb(0.2, 0.2, 0.2);
-//         const lightGray = rgb(0.95, 0.95, 0.95);
-//         const mediumGray = rgb(0.5, 0.5, 0.5);
-//         const white = rgb(1, 1, 1);
-//         const black = rgb(0, 0, 0);
-
-//         // Background subtle pattern (light gray rectangle)
-//         page.drawRectangle({
-//             x: 0, y: 0,
-//             width: width,
-//             height: height,
-//             color: rgb(0.99, 0.99, 0.99),
-//         });
-
-//         // Header Section with Gold Background
-//         page.drawRectangle({
-//             x: 0, y: height - 120,
-//             width: width,
-//             height: 120,
-//             color: goldColor,
-//         });
-
-//         // Logo/Company Name
-//         page.drawText('VERTICAL', { 
-//             x: 50, 
-//             y: height - 60, 
-//             size: 28, 
-//             color: white,
-//             font: helveticaBold // Using pre-loaded font
-//         });
-        
-//         page.drawText('LIVING', { 
-//             x: 50, 
-//             y: height - 95, 
-//             size: 24, 
-//             color: white,
-//             font: helveticaBold
-//         });
-
-//         // "QUOTATION" text on header
-//         page.drawText('QUOTATION', { 
-//             x: width - 200, 
-//             y: height - 75, 
-//             size: 32, 
-//             color: white,
-//             font: helveticaBold
-//         });
-
-//         // Decorative line under header
-//         page.drawRectangle({
-//             x: 0, y: height - 125,
-//             width: width,
-//             height: 5,
-//             color: darkGray,
-//         });
-
-//         // Client Information Section
-//         const infoStartY = height - 180;
-        
-//         // White card for client info
-//         page.drawRectangle({
-//             x: 40,
-//             y: infoStartY - 80,
-//             width: 250,
-//             height: 100,
-//             color: white,
-//             borderColor: goldColor,
-//             borderWidth: 1,
-//         });
-
-//         page.drawText('CLIENT DETAILS', {
-//             x: 55,
-//             y: infoStartY - 25,
-//             size: 12,
-//             color: goldColor,
-//             font: helveticaBold
-//         });
-
-//         page.drawText(`Name: ${name}`, {
-//             x: 55,
-//             y: infoStartY - 45,
-//             size: 11,
-//             color: darkGray,
-//             font: helvetica
-//         });
-
-//         page.drawText(`Phone: ${phone}`, {
-//             x: 55,
-//             y: infoStartY - 60,
-//             size: 11,
-//             color: darkGray,
-//             font: helvetica
-//         });
-
-//         page.drawText(`Location: ${location}`, {
-//             x: 55,
-//             y: infoStartY - 75,
-//             size: 11,
-//             color: darkGray,
-//             font: helvetica
-//         });
-
-//         // Date on the right
-//         const today = new Date();
-//         const dateStr = today.toLocaleDateString('en-IN', {
-//             day: 'numeric',
-//             month: 'long',
-//             year: 'numeric'
-//         });
-        
-//         page.drawText(`Date: ${dateStr}`, {
-//             x: width - 200,
-//             y: infoStartY - 45,
-//             size: 11,
-//             color: mediumGray,
-//             font: helvetica
-//         });
-
-//         // Project Details Card
-//         const projectCardY = infoStartY - 120;
-        
-//         page.drawRectangle({
-//             x: 40,
-//             y: projectCardY - 100,
-//             width: width - 80,
-//             height: 120,
-//             color: white,
-//             borderColor: lightGray,
-//             borderWidth: 1,
-//         });
-
-//         // Project Details Title
-//         page.drawText('PROJECT SPECIFICATIONS', {
-//             x: 55,
-//             y: projectCardY - 25,
-//             size: 12,
-//             color: goldColor,
-//             font: helveticaBold
-//         });
-
-//         // Create a grid for project details
-//         const details = [
-//             { label: 'Home Type', value: homeType },
-//             { label: 'Carpet Area', value: `${carpetArea} sq.ft.` },
-//             { label: 'Finish Style', value: finish },
-//         ];
-
-//         let xPos = 55;
-//         details.forEach((detail) => {
-//             // Background for each detail
-//             page.drawRectangle({
-//                 x: xPos - 5,
-//                 y: projectCardY - 70,
-//                 width: 150,
-//                 height: 45,
-//                 color: lightGray,
-//             });
-
-//             page.drawText(detail.label, {
-//                 x: xPos,
-//                 y: projectCardY - 50,
-//                 size: 9,
-//                 color: mediumGray,
-//                 font: helvetica
-//             });
-
-//             page.drawText(detail.value, {
-//                 x: xPos,
-//                 y: projectCardY - 70,
-//                 size: 14,
-//                 color: darkGray,
-//                 font: helveticaBold
-//             });
-
-//             xPos += 170;
-//         });
-
-//         // Estimate Section
-//         const estimateY = projectCardY - 160;
-
-//         // Gold decorative bar
-//         page.drawRectangle({
-//             x: 40,
-//             y: estimateY - 10,
-//             width: 100,
-//             height: 4,
-//             color: goldColor,
-//         });
-
-//         page.drawText('ESTIMATED VALUE', {
-//             x: 40,
-//             y: estimateY - 25,
-//             size: 16,
-//             color: darkGray,
-//             font: helveticaBold
-//         });
-
-//         // Large estimate box
-//         page.drawRectangle({
-//             x: 40,
-//             y: estimateY - 120,
-//             width: width - 80,
-//             height: 90,
-//             color: white,
-//             borderColor: goldColor,
-//             borderWidth: 2,
-//         });
-
-//         // FIXED: Use INR instead of ₹ symbol
-//         const formattedEstimate = `INR ${estimate.toLocaleString('en-IN')}`;
-
-//         page.drawText('TOTAL AMOUNT', {
-//             x: 60,
-//             y: estimateY - 60,
-//             size: 14,
-//             color: mediumGray,
-//             font: helvetica
-//         });
-
-//         page.drawText(formattedEstimate, {
-//             x: 60,
-//             y: estimateY - 100,
-//             size: 42,
-//             color: goldColor,
-//             font: helveticaBold
-//         });
-
-//         // Terms and Conditions
-//         const termsY = estimateY - 180;
-
-//         page.drawText('Terms & Conditions:', {
-//             x: 40,
-//             y: termsY,
-//             size: 10,
-//             color: darkGray,
-//             font: helveticaBold
-//         });
-
-//         const terms = [
-//             '• This is a preliminary estimate and subject to site verification',
-//             '• GST will be applicable as per prevailing rates',
-//             '• Valid for 30 days from the date of issue',
-//             '• Payment terms: 50% advance, remaining as per milestone',
-//         ];
-
-//         terms.forEach((term, index) => {
-//             page.drawText(term, {
-//                 x: 40,
-//                 y: termsY - 15 - (index * 15),
-//                 size: 8,
-//                 color: mediumGray,
-//                 font: helvetica
-//             });
-//         });
-
-//         // Footer
-//         page.drawRectangle({
-//             x: 0,
-//             y: 30,
-//             width: width,
-//             height: 1,
-//             color: goldColor,
-//         });
-
-//         page.drawText('Vertical Living - Premium Interior Designs', {
-//             x: 40,
-//             y: 15,
-//             size: 8,
-//             color: mediumGray,
-//             font: helvetica
-//         });
-
-//         page.drawText('www.verticalliving.com | contact@verticalliving.com', {
-//             x: width - 250,
-//             y: 15,
-//             size: 8,
-//             color: mediumGray,
-//             font: helvetica
-//         });
-
-//         const pdfBytes = await pdfDoc.save();
-
-//         // 2. Upload to S3
-//         const sanitizedName = name.replace(/[^a-zA-Z0-9]/g, '_');
-//         const timestamp = Date.now();
-//         const filename = `${sanitizedName}_${timestamp}_Quote.pdf`;
-
-//         const fakeFile = {
-//             buffer: Buffer.from(pdfBytes),
-//             originalname: filename,
-//             mimetype: 'application/pdf'
-//         };
-
-//         const quotationData = await uploadFileToS3New(fakeFile);
-
-
-//         // 3. Save to MongoDB
-//         const newQuote = new PublicQuoteCalculatorModel({
-//             name, phone, location, carpetArea, homeType, finish, estimate,
-//             quotationPdf: quotationData
-//         });
-
-//         await newQuote.save();
-
-//         res.status(201).json({
-//             ok: true,
-//             message: "Quotation generated and saved successfully",
-//             url: quotationData.url // Send this to frontend for download button
-//         });
-
-//     } catch (error) {
-//         console.error("Quote Error:", error);
-//         res.status(500).json({ ok: false, message: "Error generating quotation" });
-//     }
-// };
-
-
 
 export const COMPANY_LOGO = "https://th.bing.com/th/id/OIP.Uparc9uI63RDb82OupdPvwAAAA?w=80&h=80&c=1&bgcl=c77779&r=0&o=6&dpr=1.3&pid=ImgRC";
 export const COMPANY_NAME = "Vertical Living";
 export const createPublicQuote = async (req: Request, res: Response) => {
     try {
-        const { name, phone, location, carpetArea, homeType, finish, estimate } = req.body;
+        const { name, phone, location, carpetArea, homeType, finish, estimate, config } = req.body;
 
         // 1. Create PDF via pdf-lib
         const pdfDoc = await PDFDocument.create();
@@ -386,7 +46,7 @@ export const createPublicQuote = async (req: Request, res: Response) => {
         const lightGray = rgb(0.95, 0.95, 0.95); // Light Gray for backgrounds
         const whiteColor = rgb(1, 1, 1);
         const darkGray = rgb(0.3, 0.3, 0.3); // Dark Gray for text
-        
+
         // Clean white background
         page.drawRectangle({
             x: 0, y: 0,
@@ -402,7 +62,7 @@ export const createPublicQuote = async (req: Request, res: Response) => {
         try {
             const logoRes = await fetch(COMPANY_LOGO);
             const logoBuffer = await logoRes.arrayBuffer();
-            
+
             // Try to determine image type and embed accordingly
             let logoImage;
             try {
@@ -471,7 +131,7 @@ export const createPublicQuote = async (req: Request, res: Response) => {
                 font: helveticaBold
             });
             yPosition -= 30;
-            
+
             page.drawLine({
                 start: { x: 40, y: yPosition },
                 end: { x: width - 40, y: yPosition },
@@ -635,7 +295,7 @@ export const createPublicQuote = async (req: Request, res: Response) => {
 
         let cardX = 40;
         const cardWidth = 160;
-        
+
         specData.forEach((item) => {
             // Card background
             page.drawRectangle({
@@ -832,7 +492,7 @@ export const createPublicQuote = async (req: Request, res: Response) => {
         // 3. Save to MongoDB
         const newQuote = new PublicQuoteCalculatorModel({
             name, phone, location, carpetArea, homeType, finish, estimate,
-            quotationPdf: quotationData
+            quotationPdf: quotationData, config
         });
 
         await newQuote.save();
@@ -840,11 +500,69 @@ export const createPublicQuote = async (req: Request, res: Response) => {
         res.status(201).json({
             ok: true,
             message: "Quotation generated and saved successfully",
-            url: quotationData.url
+            url: quotationData.url,
+            data: newQuote
         });
 
     } catch (error) {
         console.error("Quote Error:", error);
         res.status(500).json({ ok: false, message: "Error generating quotation" });
+    }
+};
+
+
+
+
+import axios from 'axios';
+
+export const sendWhatsAppAutomation = async (req: Request, res: Response,) => {
+
+    const { clientPhone, clientName, pdfUrl } = req.body
+    const WHATSAPP_TOKEN = process.env.WHATSAPP_ACCESS_TOKEN;
+    const PHONE_NUMBER_ID = process.env.WHATSAPP_PHONE_NUMBER_ID;
+
+    // Ensure phone is in international format (e.g., 91xxxxxxxxxx for India)
+    const formattedPhone = clientPhone.replace(/\D/g, '');
+
+    const data = {
+        messaging_product: "whatsapp",
+        to: formattedPhone,
+        type: "template",
+        template: {
+            name: "cost_calculation_template", // Your approved template name
+            language: { code: "en" }, // Language selected in your screenshot
+            components: [
+                {
+                    type: "header",
+                    parameters: [
+                        {
+                            type: "document",
+                            document: {
+                                link: pdfUrl,
+                                filename: "Vertical_Living_Estimation.pdf"
+                            }
+                        }
+                    ]
+                },
+                {
+                    type: "body",
+                    parameters: [
+                        { type: "text", text: clientName } // Fills {{customer_name}}
+                    ]
+                }
+            ]
+        }
+    };
+
+    try {
+        const response = await axios.post(
+            `https://graph.facebook.com/v21.0/${PHONE_NUMBER_ID}/messages`,
+            data,
+            { headers: { Authorization: `Bearer ${WHATSAPP_TOKEN}` } }
+        );
+        return response.data;
+    } catch (error: any) {
+        console.error("WhatsApp API Error:", error.response?.data || error.message);
+        throw error;
     }
 };
