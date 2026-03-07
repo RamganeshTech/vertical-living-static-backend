@@ -2,6 +2,7 @@ import PublicQuoteCalculatorModel from '../model/publicQuoteCalculator.model.js'
 import type { Request, Response } from 'express';
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 import { uploadFileToS3New } from '../utils/s3UploadsNew.js';
+import axios from 'axios';
 
 // import { PublicQuoteModel } from '../models/PublicQuoteModel.js';
 // import { uploadBufferToS3 } from '../utils/s3Config.js';
@@ -500,7 +501,7 @@ export const createPublicQuote = async (req: Request, res: Response) => {
         res.status(201).json({
             ok: true,
             message: "Quotation generated and saved successfully",
-            url: quotationData.url,
+            url: quotationData?.url,
             data: newQuote
         });
 
@@ -513,23 +514,31 @@ export const createPublicQuote = async (req: Request, res: Response) => {
 
 
 
-import axios from 'axios';
 
 export const sendWhatsAppAutomation = async (req: Request, res: Response,) => {
 
+
     const { clientPhone, clientName, pdfUrl } = req.body
-    const WHATSAPP_TOKEN = process.env.WHATSAPP_ACCESS_TOKEN;
+    const WHATSAPP_TOKEN = process.env.PERMANENT_WHATSAPP_ACCESS_TOKEN;
     const PHONE_NUMBER_ID = process.env.WHATSAPP_PHONE_NUMBER_ID;
 
-    // Ensure phone is in international format (e.g., 91xxxxxxxxxx for India)
-    const formattedPhone = clientPhone.replace(/\D/g, '');
+    console.log("WHATSAPP_TOKEN",WHATSAPP_TOKEN)
+    console.log("PHONE_NUMBER_ID",PHONE_NUMBER_ID)
+    console.log("clientPhone", clientPhone)
 
+    // Ensure phone is in international format (e.g., 91xxxxxxxxxx for India)
+    // const formattedPhone = clientPhone.replace(/\D/g, '');
+
+    const rawPhone = clientPhone.replace(/\D/g, '');
+    const formattedPhone = rawPhone.startsWith('91') ? rawPhone : `91${rawPhone}`;
+
+    console.log("formattedPhone", formattedPhone)
     const data = {
         messaging_product: "whatsapp",
         to: formattedPhone,
         type: "template",
         template: {
-            name: "cost_calculation_template", // Your approved template name
+            name: "cost_calculation", // Your approved template name
             language: { code: "en" }, // Language selected in your screenshot
             components: [
                 {
@@ -547,7 +556,9 @@ export const sendWhatsAppAutomation = async (req: Request, res: Response,) => {
                 {
                     type: "body",
                     parameters: [
-                        { type: "text", text: clientName } // Fills {{customer_name}}
+                        { type: "text", text: clientName },      // Fills {{client_name}}
+                        // { type: "text", text: "+919363993814" }, // Fills {{phone_no}}
+                        // { type: "text", text: "Vertical Living" } // Fills {{company_name}}
                     ]
                 }
             ]
@@ -560,9 +571,106 @@ export const sendWhatsAppAutomation = async (req: Request, res: Response,) => {
             data,
             { headers: { Authorization: `Bearer ${WHATSAPP_TOKEN}` } }
         );
-        return response.data;
+        console.log("response", response)
+        return res.status(200).json({
+            ok: true,
+            message: "pdf shared to mentioned number",
+            data: response?.data
+        });
     } catch (error: any) {
         console.error("WhatsApp API Error:", error.response?.data || error.message);
-        throw error;
+        // throw error;
+        return res.status(error.response?.status || 500).json({
+            ok: false,
+            error: error.message
+        });
+
     }
 };
+
+
+
+
+
+// export const sendWhatsAppAutomation = async (req: Request, res: Response,) => {
+
+//     const { clientPhone, clientName, pdfUrl } = req.body
+//     const WHATSAPP_TOKEN = process.env.PERMANENT_WHATSAPP_ACCESS_TOKEN;
+//     const PHONE_NUMBER_ID = process.env.WHATSAPP_PHONE_NUMBER_ID;
+
+//     console.log("WHATSAPP_TOKEN", WHATSAPP_TOKEN)
+//     console.log("PHONE_NUMBER_ID", PHONE_NUMBER_ID)
+//     console.log("clientPhone", clientPhone)
+
+//     // Ensure phone is in international format (e.g., 91xxxxxxxxxx for India)
+//     // const formattedPhone = clientPhone.replace(/\D/g, '');
+
+//     const rawPhone = clientPhone.replace(/\D/g, '');
+//     const formattedPhone = rawPhone.startsWith('91') ? rawPhone : `91${rawPhone}`;
+
+//     console.log("formattedPhone", formattedPhone)
+//     const data = {
+//         messaging_product: "whatsapp",
+//         to: formattedPhone,
+//         type: "template",
+//         template: {
+//             name: "vertical_living_quick_cost_calculator", // Your approved template name
+//             language: { code: "en" }, // Language selected in your screenshot
+//             components: [
+//                 // {
+//                 //     type: "header",
+//                 //     parameters: [
+//                 //         {
+//                 //             type: "document",
+//                 //             document: {
+//                 //                 link: pdfUrl,
+//                 //                 filename: "Vertical_Living_Estimation.pdf"
+//                 //             }
+//                 //         }
+//                 //     ]
+//                 // },
+//                 {
+//                     type: "body",
+//                     parameters: [
+//                         { type: "text", text: clientName },      // Fills {{client_name}}
+//                         // { type: "text", text: "+919363993814" }, // Fills {{phone_no}}
+//                         // { type: "text", text: "Vertical Living" } // Fills {{company_name}}
+//                     ]
+//                 },
+//                 {
+//                     type: "button",
+//                     sub_type: "url",
+//                     index: "1", // Use "1" because "View Pdf" is the second button in your list
+//                     parameters: [
+//                         {
+//                             type: "text",
+//                             text: pdfUrl // This adds the filename to your S3 base URL
+//                         }
+//                     ]
+//                 }
+//             ]
+//         }
+//     };
+
+//     try {
+//         const response = await axios.post(
+//             `https://graph.facebook.com/v21.0/${PHONE_NUMBER_ID}/messages`,
+//             data,
+//             { headers: { Authorization: `Bearer ${WHATSAPP_TOKEN}` } }
+//         );
+//         console.log("response", response)
+//         return res.status(200).json({
+//             ok: true,
+//             message: "pdf shared to mentioned number",
+//             data: response?.data
+//         });
+//     } catch (error: any) {
+//         console.error("WhatsApp API Error:", error.response?.data || error.message);
+//         // throw error;
+//         return res.status(error.response?.status || 500).json({
+//             ok: false,
+//             error: error.message
+//         });
+
+//     }
+// };
