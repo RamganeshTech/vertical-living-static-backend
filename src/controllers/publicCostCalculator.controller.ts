@@ -440,6 +440,26 @@ export const createPublicQuote = async (req: Request, res: Response) => {
             yPosition -= 15;
         });
 
+
+        // ===== CONSULTATION MESSAGE =====
+        yPosition -= 10;
+
+        const consultationText = "Kindly have a discussion with our designers to get detailed insights.";
+
+        // calculate center position
+        const textWidth = helveticaBold.widthOfTextAtSize(consultationText, 9);
+        const centerX = (width - textWidth) / 2;
+
+        page.drawText(consultationText, {
+            x: centerX,
+            y: yPosition,
+            size: 9,
+            color: blueColor,
+            font: helveticaBold
+        });
+
+        yPosition -= 25;
+
         // ===== FOOTER =====
         const footerY = 50;
 
@@ -467,7 +487,7 @@ export const createPublicQuote = async (req: Request, res: Response) => {
             font: helvetica
         });
 
-        page.drawText('+91 93639 93814', {
+        page.drawText('Contact No: +91 93639 93814', {
             x: width - 150,
             y: footerY - 5,
             size: 8,
@@ -522,8 +542,8 @@ export const sendWhatsAppAutomation = async (req: Request, res: Response,) => {
     const WHATSAPP_TOKEN = process.env.PERMANENT_WHATSAPP_ACCESS_TOKEN;
     const PHONE_NUMBER_ID = process.env.WHATSAPP_PHONE_NUMBER_ID;
 
-    console.log("WHATSAPP_TOKEN",WHATSAPP_TOKEN)
-    console.log("PHONE_NUMBER_ID",PHONE_NUMBER_ID)
+    console.log("WHATSAPP_TOKEN", WHATSAPP_TOKEN)
+    console.log("PHONE_NUMBER_ID", PHONE_NUMBER_ID)
     console.log("clientPhone", clientPhone)
 
     // Ensure phone is in international format (e.g., 91xxxxxxxxxx for India)
