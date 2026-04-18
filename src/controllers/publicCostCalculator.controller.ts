@@ -29,7 +29,13 @@ export const COMPANY_LOGO = "https://th.bing.com/th/id/OIP.Uparc9uI63RDb82OupdPv
 export const COMPANY_NAME = "Vertical Living";
 export const createPublicQuote = async (req: Request, res: Response) => {
     try {
-        const { name, phone, location, carpetArea, homeType, finish, estimate, config } = req.body;
+        const { name, phone, location, carpetArea, homeType, finish, estimate, config, consent } = req.body;
+
+
+
+        if (!consent) {
+            return res.status(400).json({ message: "consent should be true or accepted", ok: false })
+        }
 
         // 1. Create PDF via pdf-lib
         const pdfDoc = await PDFDocument.create();
@@ -75,7 +81,7 @@ export const createPublicQuote = async (req: Request, res: Response) => {
             const logoScale = 0.5;
             const logoDims = logoImage.scale(logoScale);
 
-            const brandText = "Vertical Living";
+            const brandText = COMPANY_NAME;
             const brandFontSize = 24;
             const brandColor = blueColor;
             const brandTextWidth = helveticaBold.widthOfTextAtSize(brandText, brandFontSize);
@@ -513,7 +519,7 @@ export const createPublicQuote = async (req: Request, res: Response) => {
         // 3. Save to MongoDB
         const newQuote = new PublicQuoteCalculatorModel({
             name, phone, location, carpetArea, homeType, finish, estimate,
-            quotationPdf: quotationData, config
+            quotationPdf: quotationData, config, consent
         });
 
         await newQuote.save();
@@ -558,7 +564,7 @@ export const sendWhatsAppAutomation = async (req: Request, res: Response,) => {
         to: formattedPhone,
         type: "template",
         template: {
-            name: "cost_calculation", // Your approved template name
+            name: "cost_calculation_v2", // Your approved template name
             language: { code: "en" }, // Language selected in your screenshot
             components: [
                 {
@@ -585,6 +591,8 @@ export const sendWhatsAppAutomation = async (req: Request, res: Response,) => {
         }
     };
 
+
+
     try {
         const response = await axios.post(
             `https://graph.facebook.com/v21.0/${PHONE_NUMBER_ID}/messages`,
@@ -598,6 +606,7 @@ export const sendWhatsAppAutomation = async (req: Request, res: Response,) => {
             data: response?.data
         });
     } catch (error: any) {
+        console.log("whatsapp full error", error)
         console.error("WhatsApp API Error:", error.response?.data || error.message);
         // throw error;
         return res.status(error.response?.status || 500).json({
