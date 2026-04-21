@@ -573,8 +573,8 @@ export const sendWhatsAppAutomation = async (req: Request, res: Response,) => {
                         {
                             type: "document",
                             document: {
-                                // link: pdfUrl,
-                                link: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+                                link: pdfUrl,
+                                // link: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
                                 filename: "Vertical_Living_Estimation.pdf"
                             }
                         }
