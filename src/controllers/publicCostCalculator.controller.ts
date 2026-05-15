@@ -29,7 +29,7 @@ export const COMPANY_LOGO = "https://th.bing.com/th/id/OIP.Uparc9uI63RDb82OupdPv
 export const COMPANY_NAME = "Vertical Living";
 export const createPublicQuote = async (req: Request, res: Response) => {
     try {
-        const { name, phone, location, carpetArea, homeType, finish, estimate, config, consent } = req.body;
+        const { name, phone, location, carpetArea, homeType, finish, estimate, config, consent , source} = req.body;
 
 
 
@@ -519,7 +519,7 @@ export const createPublicQuote = async (req: Request, res: Response) => {
         // 3. Save to MongoDB
         const newQuote = new PublicQuoteCalculatorModel({
             name, phone, location, carpetArea, homeType, finish, estimate,
-            quotationPdf: quotationData, config, consent
+            quotationPdf: quotationData, config, consent, source
         });
 
         await newQuote.save();

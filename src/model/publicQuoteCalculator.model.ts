@@ -15,8 +15,9 @@ const PublicQuoteSchema = new mongoose.Schema({
         originalName: String,
         uploadedAt: { type: Date, default: new Date() }
     },
-    config: {type: Object, default:{} },
-    consent:{type:Boolean, default:null}
+    config: { type: Object, default: {} },
+    consent: { type: Boolean, default: null },
+    source: { type: String, default: null },
 }, { timestamps: true });
 
 
