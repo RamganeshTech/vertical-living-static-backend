@@ -459,7 +459,7 @@ export const createPublicQuote = async (req: Request, res: Response) => {
         page.drawText(consultationText, {
             x: centerX,
             y: yPosition,
-            size: 9,
+            size: 15,
             color: blueColor,
             font: helveticaBold
         });
