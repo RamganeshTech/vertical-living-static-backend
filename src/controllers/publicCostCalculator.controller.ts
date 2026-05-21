@@ -565,22 +565,23 @@ export const sendWhatsAppAutomation = async (req: Request, res: Response,) => {
         to: formattedPhone,
         type: "template",
         template: {
-            name: "cost_calculation_v2", // Your approved template name
+            // name: "cost_calculation_v2", // Your approved template name
+            name: "calculator_testing", // Your approved template name
             language: { code: "en" }, // Language selected in your screenshot
             components: [
-                {
-                    type: "header",
-                    parameters: [
-                        {
-                            type: "document",
-                            document: {
-                                link: pdfUrl,
-                                // link: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
-                                filename: "Vertical_Living_Estimation.pdf"
-                            }
-                        }
-                    ]
-                },
+                // {
+                //     type: "header",
+                //     parameters: [
+                //         {
+                //             type: "document",
+                //             document: {
+                //                 link: pdfUrl,
+                //                 // link: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+                //                 filename: "Vertical_Living_Estimation.pdf"
+                //             }
+                //         }
+                //     ]
+                // },
                 {
                     type: "body",
                     parameters: [
