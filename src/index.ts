@@ -31,12 +31,40 @@ app.use(express.json());
 // Routes
 app.use('/api/v1/chat', chatRoutes);
 app.use('/api/v1/calculator', publicCostCalculatorRoutes);
+
+// Verification
+app.get("/webhook", (req, res) => {
+  const verify_token = "vertical_living_token";
+
+  const mode = req.query["hub.mode"];
+  const token = req.query["hub.verify_token"];
+  const challenge = req.query["hub.challenge"];
+
+  if (mode === "subscribe" && token === verify_token) {
+    console.log("Webhook verified");
+    return res.status(200).send(challenge);
+  }
+
+  res.sendStatus(403);
+});
+
+
+// Meta status callbacks
+app.post("/webhook", (req, res) => {
+  console.log(
+    "META CALLBACK:",
+    JSON.stringify(req.body, null, 2)
+  );
+
+  res.sendStatus(200);
+});
+
 app.use(downloadRouter)
 
 
 // Health Check (Optional but recommended for EC2 monitoring)
 app.get('/health', (req, res) => {
-    res.status(200).json({ status: 'active', messsage:"server running", timestamp: new Date().toISOString() });
+  res.status(200).json({ status: 'active', messsage: "server running", timestamp: new Date().toISOString() });
 });
 
 const PORT = process.env.PORT || 5000;
