@@ -452,14 +452,15 @@ export const createPublicQuote = async (req: Request, res: Response) => {
 
         const consultationText = "Kindly have a discussion with our designers to get detailed insights.";
 
+        const consulationTextFontSize = 15
         // calculate center position
-        const textWidth = helveticaBold.widthOfTextAtSize(consultationText, 9);
+        const textWidth = helveticaBold.widthOfTextAtSize(consultationText, consulationTextFontSize);
         const centerX = (width - textWidth) / 2;
 
         page.drawText(consultationText, {
             x: centerX,
             y: yPosition,
-            size: 15,
+            size: consulationTextFontSize,
             color: blueColor,
             font: helveticaBold
         });
