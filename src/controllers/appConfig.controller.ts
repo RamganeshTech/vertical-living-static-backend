@@ -1,5 +1,5 @@
 import { type Request, type Response } from 'express';
-import { AppConfigModel } from '../model/appconfig.model.js';
+import AppConfigModel  from '../model/appconfig.model.js';
 // import { AppConfigModel } from '../model/appconfig.model.js';
 
 // ==========================================

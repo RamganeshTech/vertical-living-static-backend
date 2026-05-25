@@ -4,7 +4,7 @@ import type { Request, Response } from 'express';
 import { PDFDocument, rgb, StandardFonts, PDFName, PDFString, PDFArray, drawText } from 'pdf-lib';
 import { uploadFileToS3New } from '../utils/s3UploadsNew.js';
 import axios from 'axios';
-import { AppConfigModel } from '../model/appconfig.model.js';
+import  AppConfigModel  from '../model/appconfig.model.js';
 
 // import { PublicQuoteModel } from '../models/PublicQuoteModel.js';
 // import { uploadBufferToS3 } from '../utils/s3Config.js';

@@ -14,4 +14,8 @@ const appConfigSchema = new mongoose.Schema({
     }
 }, { timestamps: true });
 
-export const AppConfigModel = mongoose.model('AppConfig', appConfigSchema);
+// export const AppConfigModel = mongoose.model('AppConfig', appConfigSchema);
+
+const AppConfigModel = mongoose.model('AppConfig', appConfigSchema);
+
+export default AppConfigModel;
