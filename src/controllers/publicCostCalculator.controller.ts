@@ -4,7 +4,9 @@ import type { Request, Response } from 'express';
 import { PDFDocument, rgb, StandardFonts, PDFName, PDFString, PDFArray, drawText } from 'pdf-lib';
 import { uploadFileToS3New } from '../utils/s3UploadsNew.js';
 import axios from 'axios';
-import  AppConfigModel  from '../model/appconfig.model.js';
+// import AppConfigModel from '../model/appConfig.model.js';
+import AppConfigModel from '../model/appConfig.model.js';
+
 
 // import { PublicQuoteModel } from '../models/PublicQuoteModel.js';
 // import { uploadBufferToS3 } from '../utils/s3Config.js';
@@ -626,11 +628,11 @@ export const createPublicQuoteV1 = async (req: Request, res: Response) => {
             return res.status(400).json({ message: "consent should be true or accepted", ok: false });
         }
 
-       
+
         // 1. Fetch Config & Increment Quote Counter ATOMICALLY
         const appConfig = await AppConfigModel.findOneAndUpdate(
             { configId: "global_config" },
-            { $inc: { quoteCounter: 1 } }, 
+            { $inc: { quoteCounter: 1 } },
             { new: true, upsert: true, setDefaultsOnInsert: true }
         );
 
@@ -649,16 +651,16 @@ export const createPublicQuoteV1 = async (req: Request, res: Response) => {
             : [{ text: "Discount up to 50%" }];
 
         // 2. Fetch Marketing Banner Images safely
-        const promoImageUrls: [string, string]  = [
+        const promoImageUrls: [string, string] = [
             "https://i.pinimg.com/736x/58/b0/2f/58b02f052337ec088228a082d4ad3b45.jpg",
             "https://i.pinimg.com/1200x/03/6a/96/036a965f59f19b3aec0c4ac8c452424d.jpg"
         ];
 
         const [url1, url2] = promoImageUrls;
 
-        
+
         const fetchOpts = { headers: { 'User-Agent': 'Mozilla/5.0' } };
-        
+
         const [promoImg1Buffer, promoImg2Buffer] = await Promise.all([
             fetch(url1, fetchOpts).then(res => res.arrayBuffer()).catch(() => null),
             fetch(url2, fetchOpts).then(res => res.arrayBuffer()).catch(() => null)
@@ -749,7 +751,7 @@ export const createPublicQuoteV1 = async (req: Request, res: Response) => {
             }
         }
 
-       
+
 
         // 3. Generate the PDF
         const pdfBytes = await generateQuotePDF({
@@ -1327,24 +1329,24 @@ Complimentary Electrical Labour (Applicable for Projects Above ₹5,00,000)
     // currentY -= (bannerHeight + 30);
 
 
-   // ==========================================
+    // ==========================================
     // --- EXCLUSIVE MARKETING BANNERS ---
     // ==========================================
-    
+
     // Safely embed the background images
     let bgImg1, bgImg2;
     if (promoImages?.img1) bgImg1 = await embedSafeImage(promoImages.img1);
     if (promoImages?.img2) bgImg2 = await embedSafeImage(promoImages.img2);
-    
+
     const bannerImgs = [bgImg1, bgImg2];
-    const bannerHeight = 330; 
+    const bannerHeight = 330;
 
     if (marketingText && Array.isArray(marketingText)) {
         marketingText.forEach((promo, index) => {
             checkPageBreak(bannerHeight + 40);
-            
-            const currentImg = bannerImgs[index] || null; 
-            
+
+            const currentImg = bannerImgs[index] || null;
+
             // 1. Draw the massive image background
             if (currentImg) {
                 page.drawImage(currentImg, {
@@ -1363,12 +1365,12 @@ Complimentary Electrical Labour (Applicable for Projects Above ₹5,00,000)
             const steps = 150;
             const rightEdge = leftMargin + contentWidth;
             const gradientStartX = leftMargin; // Start the fade softly from the far left edge
-            const gradientWidth = contentWidth; 
-            
+            const gradientWidth = contentWidth;
+
             for (let i = 0; i < steps; i++) {
                 const currentX = gradientStartX + ((i / steps) * gradientWidth);
                 const rectWidth = rightEdge - currentX;
-                
+
                 // Draw rectangles that all snap to the right edge.
                 page.drawRectangle({
                     x: currentX,
@@ -1377,7 +1379,7 @@ Complimentary Electrical Labour (Applicable for Projects Above ₹5,00,000)
                     height: bannerHeight,
                     color: rgb(0, 0, 0),
                     // Microscopic opacity. Stacked 150 times, it smoothly reaches ~90% darkness on the right
-                    opacity: 0.015 
+                    opacity: 0.015
                 });
             }
 
@@ -1391,20 +1393,20 @@ Complimentary Electrical Labour (Applicable for Projects Above ₹5,00,000)
             });
 
             // 4. Write the Marketing Text
-            const maxTextWidth = contentWidth * 0.55; 
+            const maxTextWidth = contentWidth * 0.55;
             const textLines = wrapText(promo.text, maxTextWidth, fontBold, 22);
-            
+
             // Center the text vertically within this massive 330px block
             let textY = currentY - (bannerHeight / 2) + ((textLines.length * 30) / 2) - 10;
-            
+
             drawText('EXCLUSIVE OFFER', textZoneStartX + 30, textY + 35, 11, fontBold, colors.termsOrange);
 
             textLines.forEach((line: string) => {
                 drawText(line, textZoneStartX + 30, textY, 22, fontBold, rgb(1, 1, 1));
-                textY -= 30; 
+                textY -= 30;
             });
 
-            currentY -= (bannerHeight + 40); 
+            currentY -= (bannerHeight + 40);
         });
     }
 
@@ -1412,7 +1414,7 @@ Complimentary Electrical Labour (Applicable for Projects Above ₹5,00,000)
     // ==========================================
     // --- 4. EXECUTION SCOPE (NEW PAGE) ---
     // ==========================================
-    
+
     // FORCE A BRAND NEW PAGE for the execution scope
     page = pdfDoc.addPage([595.28, 841.89]);
     currentY = height - 50;
@@ -1539,7 +1541,7 @@ Complimentary Electrical Labour (Applicable for Projects Above ₹5,00,000)
             currentY -= (containerHeight + 30);
 
         } else {
-          
+
             const containerHeight = 190; // Increased height to comfortably fit all skeleton content
             checkPageBreak(containerHeight + 40);
 

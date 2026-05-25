@@ -1,5 +1,5 @@
 import { type Request, type Response } from 'express';
-import AppConfigModel  from '../model/appconfig.model.js';
+import AppConfigModel from '../model/appConfig.model.js';
 // import { AppConfigModel } from '../model/appconfig.model.js';
 
 // ==========================================
@@ -41,28 +41,28 @@ export const updateMarketingText = async (req: Request, res: Response) => {
         // --- STRICT VALIDATION ---
         // 1. Check if it is an array
         if (!marketingText || !Array.isArray(marketingText)) {
-            return res.status(400).json({ 
-                ok: false, 
-                message: "marketingText must be an array of objects." 
+            return res.status(400).json({
+                ok: false,
+                message: "marketingText must be an array of objects."
             });
         }
 
         // 2. Check the length limit (Maximum 2 items)
         if (marketingText.length > 2) {
-            return res.status(400).json({ 
-                ok: false, 
-                message: "You can only have a maximum of 2 marketing text items." 
+            return res.status(400).json({
+                ok: false,
+                message: "You can only have a maximum of 2 marketing text items."
             });
         }
 
         // 3. Ensure every item in the array has a valid 'text' string property
-        const isValidStructure = marketingText.every(item => item && typeof item.text === 'string' 
+        const isValidStructure = marketingText.every(item => item && typeof item.text === 'string'
             // && item.text.trim() !== ''
         );
         if (!isValidStructure) {
-            return res.status(400).json({ 
-                ok: false, 
-                message: "Every item in the array must be an object with a non-empty 'text' property. Example: [{ text: 'Offer 1' }]" 
+            return res.status(400).json({
+                ok: false,
+                message: "Every item in the array must be an object with a non-empty 'text' property. Example: [{ text: 'Offer 1' }]"
             });
         }
 
