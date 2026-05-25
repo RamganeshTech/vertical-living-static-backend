@@ -5,6 +5,7 @@ import chatRoutes from './routes/chat.routes.js';
 import connectDB from './config/connectDb.js';
 import publicCostCalculatorRoutes from './routes/publicCostCalculator.routes.js';
 import downloadRouter from './routes/downloadRoute.routes.js';
+import appConfigRoutes from './routes/appConfig.routes.js';
 
 // Load environment variables
 dotenv.config();
@@ -13,8 +14,17 @@ const app: Application = express();
 
 
 
+const allowedOrigins: string[] = [
+  // 'https://theverticalliving.com',
+  'https://houseofram.in',
+  'https://www.houseofram.in',
+  process.env.FRONTEND_URL!
+];
+
+
 app.use(cors({
-  origin: process.env.FRONTEND_URL,
+  // origin: process.env.FRONTEND_URL,
+  origin: allowedOrigins,
   credentials: true
 }))
 
@@ -31,6 +41,7 @@ app.use(express.json());
 // Routes
 app.use('/api/v1/chat', chatRoutes);
 app.use('/api/v1/calculator', publicCostCalculatorRoutes);
+app.use('/api/v1/app-config', appConfigRoutes);
 
 // Verification
 app.get("/webhook", (req, res) => {
