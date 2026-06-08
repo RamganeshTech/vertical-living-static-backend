@@ -19,6 +19,11 @@ const PublicQuoteSchema = new mongoose.Schema({
     consent: { type: Boolean, default: null },
     source: { type: String, default: null },
     quoteRefNo: { type: String, default: null },
+
+    detailedAddress: { type: String, default: null },
+    bestTimeFrom: { type: String, default: null },
+    bestTimeTo: { type: String, default: null },
+    
 }, { timestamps: true });
 
 

@@ -622,7 +622,15 @@ export const createPublicQuote = async (req: Request, res: Response) => {
 
 export const createPublicQuoteV1 = async (req: Request, res: Response) => {
     try {
-        const { name, phone, location, carpetArea, homeType, finish, estimate, config, consent, source } = req.body;
+        const { name, phone, location, carpetArea, homeType, finish, estimate, config,
+
+            consent, source,
+
+            detailedAddress,
+            bestTimeFrom,
+            bestTimeTo
+
+        } = req.body;
 
         if (!consent) {
             return res.status(400).json({ message: "consent should be true or accepted", ok: false });
@@ -803,7 +811,10 @@ export const createPublicQuoteV1 = async (req: Request, res: Response) => {
             config,
             consent,
             source,
-            quoteRefNo: generatedQuoteRefNo // Added this field explicitly
+            quoteRefNo: generatedQuoteRefNo, // Added this field explicitly
+            detailedAddress,
+            bestTimeFrom,
+            bestTimeTo,
         });
 
         await newQuote.save();
