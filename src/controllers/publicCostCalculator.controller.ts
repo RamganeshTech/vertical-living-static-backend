@@ -1345,6 +1345,7 @@ Complimentary Electrical Labour (Applicable for Projects Above ₹5,00,000)
     // ==========================================
 
     // Safely embed the background images
+
     let bgImg1, bgImg2;
     if (promoImages?.img1) bgImg1 = await embedSafeImage(promoImages.img1);
     if (promoImages?.img2) bgImg2 = await embedSafeImage(promoImages.img2);
@@ -1754,24 +1755,82 @@ Complimentary Electrical Labour (Applicable for Projects Above ₹5,00,000)
     currentY -= 25;
 
     // Features transcribed exactly from your image
-    const packageFeatures = [
-        "BWR Plywood carcass (IS:710 grade)",
-        "Good quality granite / basic quartz top",
-        "1mm High-Pressure Laminate finish",
-        "Bottle pull-out, cutlery tray & basket",
-        "2mm PVC edge banding throughout",
-        "Basic locker shelf in wardrobe",
-        "Hettich soft-close concealed hinges",
-        "Factory finish + site installation",
-        "Hettich Quadro undermount channels",
-        "Greenlam / CenturyLaminates shutter",
-        "Hettich TopLine sliding wardrobe system",
-        "3-year workmanship warranty"
-    ];
+    // const packageFeatures = [
+    //     "BWR Plywood carcass (IS:710 grade)",
+    //     "Good quality granite / basic quartz top",
+    //     "1mm High-Pressure Laminate finish",
+    //     "Bottle pull-out, cutlery tray & basket",
+    //     "2mm PVC edge banding throughout",
+    //     "Basic locker shelf in wardrobe",
+    //     "Hettich soft-close concealed hinges",
+    //     "Factory finish + site installation",
+    //     "Hettich Quadro undermount channels",
+    //     "Greenlam / CenturyLaminates shutter",
+    //     "Hettich TopLine sliding wardrobe system",
+    //     "3-year workmanship warranty"
+    // ];
+
+
+    const getPackageFeatures = (tier: string) => {
+        const normalizedTier = String(tier).toLowerCase().trim();
+
+        if (normalizedTier === 'basic') {
+            return [
+                "Trusted Century Sainik architectural panel",
+                "High performance moisture resistant core",
+                "Branded Hettich soft close hinges",
+                "Premium high pressure external laminates",
+                "Seamless seamless profiling profile handles", // ◄ Replaced the natural stone countertop point
+                "Branded Hettich functional hardware accessories",
+                "Smooth full extension drawer tracks",
+                "Heavy duty protective edge banding",
+                "Branded precision engineered utility baskets",
+                "Advanced computerized factory alignment engineering",
+                "Precision modular panel structural assembly",
+                "Turnkey professional site space execution"
+            ];
+        }
+
+        if (normalizedTier === 'prime') {
+            return [
+                "Century Sainik BWP structural panel",
+                "High quality boiling water core",
+                "Premium seamless luxury acrylic finish",
+                "Fingerprint resistant high end surfaces",
+                "Branded Hettich premium hydraulic systems",
+                "Branded Hettich luxury drawer runners",
+                "Premium engineered luxury quartz countertop",
+                "Precision CNC machine profile routing", // ◄ Replaced advanced zero joint laser edging
+                "Branded Hettich premium organizational components",
+                "Advanced automated luxury factory manufacturing",
+                "Specialized architectural panel alignment verification",
+                "Master craftsmanship final space execution" // ◄ Replaced elite white glove site installation            ];
+            ]
+        }
+
+        // Default: 'core' package features (Mid-tier balanced option)
+        return [
+            "Renowned Century brand panel",
+            "High quality structural panel configuration",
+            "Branded Hettich premium concealed hinges",
+            "Branded Hettich smooth undermount channels",
+            "Ultra durable premium laminate finishes",
+            "Premium high density granite countertop",
+            "Branded Hettich high end fittings",
+            "Superior seamless panel edge protection",
+            "Integrated custom modular storage solutions",
+            "Automated precision factory panel processing",
+            "Elite structural alignment checking process",
+            "Professional workspace final installation execution"
+        ];
+    };
+
+    // Get the 12 premium points list for the current calculation
+    const packageFeatures = getPackageFeatures(selectedPackage);
 
     // Draw features in 2 neat columns with custom drawn circles (100% safe from WinAnsi errors)
     const col1X = leftMargin + 15;
-    const col2X = leftMargin + (contentWidth / 2) + 15;
+    const col2X = leftMargin + (contentWidth / 2) + 25;
     let featureY = currentY;
 
     for (let i = 0; i < packageFeatures.length; i += 2) {
