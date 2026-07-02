@@ -6,6 +6,7 @@ import connectDB from './config/connectDb.js';
 import publicCostCalculatorRoutes from './routes/publicCostCalculator.routes.js';
 import downloadRouter from './routes/downloadRoute.routes.js';
 import appConfigRoutes from './routes/appConfig.routes.js';
+import PublicCostCalculatorOtpRoutes from './routes/otp.routes.js';
 
 // Load environment variables
 dotenv.config();
@@ -42,6 +43,7 @@ app.use(express.json());
 app.use('/api/v1/chat', chatRoutes);
 app.use('/api/v1/calculator', publicCostCalculatorRoutes);
 app.use('/api/v1/app-config', appConfigRoutes);
+app.use('/api/v1/otp', PublicCostCalculatorOtpRoutes);
 
 // Verification
 app.get("/webhook", (req, res) => {

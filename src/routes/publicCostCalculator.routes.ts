@@ -1,5 +1,4 @@
 import { Router } from 'express';
-import { handleChat } from '../controllers/chat.controller.js';
 import { createPublicQuote, createPublicQuoteV1, sendWhatsAppAutomation } from '../controllers/publicCostCalculator.controller.js';
 
 const publicCostCalculatorRoutes = Router();
