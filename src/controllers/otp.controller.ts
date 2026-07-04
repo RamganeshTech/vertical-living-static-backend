@@ -17,12 +17,12 @@ import axios from "axios";
 // const WHATSAPP_TOKEN = process.env.WHATSAPP_ACCESS_TOKEN!;
 // const WHATSAPP_PHONE_ID = process.env.WHATSAPP_PHONE_NUMBER_ID!;
 
-const OTP_TEMPLATE_NAME = "cost_calculator_prior_template"; // e.g., "cost_calculator_utility"
+// const OTP_TEMPLATE_NAME = "cost_calculator_prior_template"; // e.g., "cost_calculator_utility"
 const WHATSAPP_TOKEN = process.env.PERMANENT_WHATSAPP_ACCESS_TOKEN;
 const PHONE_NUMBER_ID = process.env.WHATSAPP_PHONE_NUMBER_ID;
 
 
-export const sendWhatsappOtp = async (name: string, phone: string, otp: string) => {
+export const sendWhatsappOtp = async ({ name, phone, otp, otpTemplateName }: { name: string, phone: string, otp: string, otpTemplateName: "cost_calculator_prior_template" | "inquiry_form_prior_template" }) => {
     const formattedPhone = phone.startsWith("+") ? phone : `+91${phone}`;
 
     return axios.post(
@@ -34,7 +34,7 @@ export const sendWhatsappOtp = async (name: string, phone: string, otp: string) 
             to: formattedPhone,
             type: "template",
             template: {
-                name: OTP_TEMPLATE_NAME,
+                name: otpTemplateName,
                 language: { code: "en" },
                 components: [
                     {
@@ -58,51 +58,85 @@ const RESEND_COOLDOWN_MS = 30 * 1000;    // 30s between sends
 
 const generateSixDigitOtp = () => String(crypto.randomInt(100000, 999999));
 
+
+const VALID_FORM_SOURCES = ["cost_calculator", "inquiry_form"] as const;
+type FormSource = typeof VALID_FORM_SOURCES[number];
+
+function isValidFormSource(value: unknown): value is FormSource {
+    return VALID_FORM_SOURCES.includes(value as FormSource);
+}
+
+
 export const generatePublicQuoteOtp = async (req: Request, res: Response) => {
     try {
-        const { phone, name } = req.body;
+        const { phone, name, formSource } = req.body;
         if (!phone || !/^\d{10}$/.test(phone)) {
             return res.status(400).json({ ok: false, message: "Valid 10-digit phone required" });
         }
 
-        const existing = await OtpModel.findOne({ phone, purpose: "public_quote" }).sort({ createdAt: -1 });
+        // if(formSource !== "cost_calculator" || formSource !== "inquiry_form"){
+        //     return res.status(400).json({ ok: false, message: "form source should be either cost_calculator or inquiry_form" });
+        // }
 
-        if (existing && Date.now() - existing.lastSentAt.getTime() < RESEND_COOLDOWN_MS) {
-            return res.status(429).json({ ok: false, message: "Please wait before requesting another OTP" });
+
+        if (!isValidFormSource(formSource)) {
+            return res.status(400).json({ ok: false, message: "form source should be either cost_calculator or inquiry_form" });
         }
 
+
+        const FORMTEMPLATE_MAP: Record<FormSource, "cost_calculator_prior_template" | "inquiry_form_prior_template"> = {
+            cost_calculator: "cost_calculator_prior_template",
+            inquiry_form: "inquiry_form_prior_template"
+        };
+
+
+        const existing = await OtpModel.findOne({ phone, purpose: formSource }).sort({ createdAt: -1 });
+
+        if (existing && Date.now() - existing.lastSentAt.getTime() < RESEND_COOLDOWN_MS) {
+            const waitMs = RESEND_COOLDOWN_MS - (Date.now() - existing.lastSentAt.getTime());
+            return res.status(429).json({ ok: false, message: "Please wait before requesting another OTP", retryAfterMs: waitMs });
+        }
+
+
+
         // Invalidate any previous unverified OTP for this phone
-        await OtpModel.deleteMany({ phone, purpose: "public_quote", verified: false });
+        await OtpModel.deleteMany({ phone, purpose: formSource, verified: false });
 
         const otp = generateSixDigitOtp();
         const otpHash = await bcrypt.hash(otp, 10);
 
         await OtpModel.create({
             phone,
-            purpose: "public_quote",
+            purpose: formSource,
             otpHash,
             otp,
             expiresAt: new Date(Date.now() + OTP_TTL_MS),
             lastSentAt: new Date(),
         });
 
-        await sendWhatsappOtp(name, phone, otp);
+
+
+        await sendWhatsappOtp({ name, phone, otp, otpTemplateName: FORMTEMPLATE_MAP[formSource] });
 
         return res.status(200).json({ ok: true, message: "OTP sent to WhatsApp", });
     } catch (error: any) {
-        console.error("generatePublicQuoteOtp error:", error.message);
+        console.error("generate otp error:", error.message);
         return res.status(500).json({ ok: false, message: "Failed to send OTP" });
     }
 };
 
 export const verifyPublicQuoteOtp = async (req: Request, res: Response) => {
     try {
-        const { phone, otp } = req.body;
+        const { phone, otp, formSource } = req.body;
         if (!phone || !otp) {
             return res.status(400).json({ ok: false, message: "Phone and OTP required" });
         }
 
-        const record = await OtpModel.findOne({ phone, purpose: "public_quote" }).sort({ createdAt: -1 });
+        if (!isValidFormSource(formSource)) {
+            return res.status(400).json({ ok: false, message: "Invalid form source" });
+        }
+
+        const record = await OtpModel.findOne({ phone, purpose: formSource }).sort({ createdAt: -1 });
 
         if (!record) {
             return res.status(400).json({ ok: false, message: "No OTP found. Please request a new one." });
@@ -133,7 +167,7 @@ export const verifyPublicQuoteOtp = async (req: Request, res: Response) => {
 
         return res.status(200).json({ ok: true, message: "OTP verified", verificationToken });
     } catch (error) {
-        console.error("verifyPublicQuoteOtp error:", error);
+        console.error("verifying otp error:", error);
         return res.status(500).json({ ok: false, message: "Failed to verify OTP" });
     }
 };

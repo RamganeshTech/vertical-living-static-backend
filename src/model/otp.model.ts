@@ -3,7 +3,7 @@ import { Schema, model } from "mongoose";
 
 const PublicQuoteOtpSchema = new Schema({
     phone: { type: String, required: true, index: true },
-    purpose: { type: String, default: "public_quote" },
+    purpose: { type: String, default: "cost_calculator" },
 
     otpHash: { type: String, required: true },
     otp: {type:String, default: null},
